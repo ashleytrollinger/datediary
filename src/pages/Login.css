@@ -112,3 +112,28 @@
     box-shadow: 0 4px 10px rgba(255, 117, 140, 0.6);
     transform: translateY(-2px);
 }
+
+@media (max-width: 600px) {
+    .login-box {
+        max-width: 90%;
+        /* use more of the screen */
+        padding: 30px 20px;
+    }
+
+    .login-button {
+        width: 50%;
+        /* bigger button for easier tapping */
+        padding: 12px 0;
+        font-size: 1rem;
+    }
+
+    .login-input {
+        width: 90%;
+        /* full width inputs */
+        font-size: 0.95rem;
+        padding: 10px 12px;
+    }
+
+    .login-box h1 {
+        font-size: 1.5rem;
+    }

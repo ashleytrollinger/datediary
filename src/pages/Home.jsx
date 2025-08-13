@@ -12,6 +12,7 @@ import {
     getDocs,
     updateDoc,
 } from "firebase/firestore";
+import { signOut } from "firebase/auth";
 import "./Home.css";
 
 export default function Home() {
