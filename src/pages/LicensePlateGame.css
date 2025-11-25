@@ -1,0 +1,88 @@
+/* LicensePlateGame.css */
+.license-plate-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    overflow: hidden;
+}
+
+.license-plate-game h2 {
+    font-size: 1.8rem;
+    color: #ff4d6d;
+    margin-bottom: 5px;
+}
+
+.license-plate-game p {
+    font-size: 1.1rem;
+    color: #333;
+    margin: 5px 0;
+}
+
+.states-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+    width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
+    width: 100%;
+    padding-right: 5px;
+    padding-bottom: 5px;
+}
+
+.states-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.states-list::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 125, 140, 0.5);
+    border-radius: 3px;
+}
+
+.states-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.state-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    background: rgba(255, 125, 140, 0.15);
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    user-select: none;
+}
+
+.state-item:hover {
+    background: rgba(255, 125, 140, 0.3);
+    transform: translateY(-1px);
+}
+
+.state-item input[type="checkbox"] {
+    width: 10px;
+    height: 10px;
+    cursor: pointer;
+}
+
+@media(max-width: 600px) {
+    .states-list {
+        align-items: center;
+    }
+
+    .state-item {
+        width: 80%;
+        justify-content: flex-start;
+    }
+}

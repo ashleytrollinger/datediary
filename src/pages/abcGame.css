@@ -1,0 +1,72 @@
+/* ABCGame.css */
+.abc-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+.big-letter {
+    font-size: 80px;
+    font-weight: bold;
+    color: #ff4d6d;
+    margin: 10px 0;
+    transition: transform 0.3s;
+}
+
+.big-letter:hover {
+    transform: scale(1.1);
+}
+
+.abc-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.abc-buttons button {
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #ff7eb3, #ff758c);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+    box-shadow: 0 6px 16px rgba(255, 117, 140, 0.7);
+    transition: background 0.3s, transform 0.2s;
+}
+
+.abc-buttons button:hover {
+    background: linear-gradient(135deg, #ff5a83, #ff3b66);
+    transform: translateY(-2px);
+}
+
+p {
+    font-size: 1.2rem;
+    color: #333;
+}
+
+@media (max-width: 600px) {
+    .big-letter {
+        font-size: 60px;
+    }
+
+    .abc-buttons {
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+
+    .abc-buttons button {
+        width: 100%;
+    }
+}

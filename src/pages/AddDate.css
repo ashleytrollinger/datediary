@@ -1,39 +1,48 @@
+.add-date {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #ff7eb4b7, #ff758ca6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-family: "Segoe UI", sans-serif;
+}
 
 .add-date-container {
-    max-width: 70%;
     margin: auto;
-    padding: 20px 35px;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
 }
 
 .add-date-container h1 {
-    margin-bottom: 0px;
-    margin-top: 0px;
-    font-weight: 700;
-    font-size: 2rem;
-    text-align: center;
-    color: #ff758c;
-    /* pink accent */
+    margin-bottom: 25px;
+    font-size: 1.7rem;
+    color: #ff4d6d;
 }
 
 .add-date-container input,
 .add-date-container select,
 .add-date-container textarea {
-    width: 100%;
     font-family: inherit;
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
     font-size: 1rem;
-    padding: 16px 18px;
-    margin: 16px 0 14px;
-    border: 1.8px solid #ddd;
-    border-radius: 10px;
     box-sizing: border-box;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    resize: vertical;
-    color: #333;
 }
 
 .add-date-container input:focus,

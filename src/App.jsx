@@ -5,6 +5,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import AddDate from "./pages/AddDate";
+import RoadTripGames from "./pages/RoadTripGames";
+import NewTrip from "./pages/NewTrip";
 
 function App() {
   const [user] = useAuthState(auth);
@@ -16,6 +18,9 @@ function App() {
         <Route path="/add" element={user ? <AddDate /> : <Navigate to="/login" />} />
         <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
         <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
+        <Route path="/games/:tripId" element={<RoadTripGames />} />
+        <Route path="/newtrip" element={<NewTrip />} />
+
       </Routes>
     </Router>
   );

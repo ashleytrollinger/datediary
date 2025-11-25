@@ -7,6 +7,7 @@ html, body, #root {
   background-color: #fafafa;
 }
 
+
 /* Make app container fill the screen */
 #root {
   display: flex;

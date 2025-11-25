@@ -22,22 +22,18 @@ export default function Home() {
     const [userName, setUserName] = useState("");
     const [currentUserId, setCurrentUserId] = useState(null);
     const [commentInputs, setCommentInputs] = useState({});
-    const [showHeart, setShowHeart] = useState(false); // NEW
-    const [sortOrder, setSortOrder] = useState("desc"); // NEW: "desc" or "asc"
+    const [showHeart, setShowHeart] = useState(false);
+    const [sortOrder, setSortOrder] = useState("desc");
 
     // Trigger heart animation on first load
     useEffect(() => {
         setShowHeart(true);
-        const timer = setTimeout(() => {
-            setShowHeart(false);
-        }, 2000); // match AddDate timing
+        const timer = setTimeout(() => setShowHeart(false), 2000);
         return () => clearTimeout(timer);
     }, []);
 
     useEffect(() => {
-        if (auth.currentUser) {
-            setCurrentUserId(auth.currentUser.uid);
-        }
+        if (auth.currentUser) setCurrentUserId(auth.currentUser.uid);
 
         const fetchUserName = async () => {
             if (!auth.currentUser) return;
@@ -53,39 +49,42 @@ export default function Home() {
 
     // Fetch dates and users — reacts to sortOrder change
     useEffect(() => {
-        const q = query(collection(db, "dates"), orderBy("date", sortOrder));
-        const unsubscribe = onSnapshot(q, async (snapshot) => {
-            const datesData = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            setDates(datesData);
+        const fetchTimeline = async () => {
+            const datesQuery = query(collection(db, "dates"), orderBy("date", sortOrder));
+            const roadTripsQuery = query(collection(db, "roadtrips"), orderBy("startDate", sortOrder));
 
-            const creatorIDs = datesData.map((d) => d.userID).filter(Boolean);
-            const partnerIDs = datesData.map((d) => d.partnerUserID).filter(Boolean);
-            const allUserIDs = [...new Set([...creatorIDs, ...partnerIDs])];
+            const unsubscribeDates = onSnapshot(datesQuery, async (datesSnapshot) => {
+                const datesData = datesSnapshot.docs.map((doc) => ({ id: doc.id, type: "date", ...doc.data() }));
 
-            if (allUserIDs.length === 0) {
-                setUserNamesMap({});
-                return;
-            }
+                const creatorIDs = datesData.map((d) => d.userID).filter(Boolean);
+                const partnerIDs = datesData.map((d) => d.partnerUserID).filter(Boolean);
+                const allUserIDs = [...new Set([...creatorIDs, ...partnerIDs])];
 
-            const usersQuery = query(
-                collection(db, "users"),
-                where("__name__", "in", allUserIDs)
-            );
-            const usersSnapshot = await getDocs(usersQuery);
+                let usersMap = {};
+                if (allUserIDs.length > 0) {
+                    const usersQuery = query(collection(db, "users"), where("__name__", "in", allUserIDs));
+                    const usersSnapshot = await getDocs(usersQuery);
+                    usersSnapshot.forEach((userDoc) => {
+                        const data = userDoc.data();
+                        usersMap[userDoc.id] = `${data.firstName} ${data.lastName}`;
+                    });
+                }
+                setUserNamesMap(usersMap);
 
-            const usersMap = {};
-            usersSnapshot.forEach((userDoc) => {
-                const data = userDoc.data();
-                usersMap[userDoc.id] = `${data.firstName} ${data.lastName}`;
+                const roadTripsSnapshot = await getDocs(roadTripsQuery);
+                const roadTripsData = roadTripsSnapshot.docs.map((doc) => ({ id: doc.id, type: "trip", ...doc.data() }));
+
+                const combined = [...datesData, ...roadTripsData].sort(
+                    (a, b) => new Date(a.date || a.startDate) - new Date(b.date || b.startDate)
+                );
+
+                setDates(combined);
             });
 
-            setUserNamesMap(usersMap);
-        });
+            return () => unsubscribeDates();
+        };
 
-        return () => unsubscribe();
+        fetchTimeline();
     }, [sortOrder]);
 
     const handleCommentChange = (dateId, value) => {
@@ -125,21 +124,27 @@ export default function Home() {
         const days = diffDays % 30;
 
         let text = "Dating for ";
-        if (months > 0) {
-            text += `${months} month${months > 1 ? "s" : ""}`;
-        }
-        if (days > 0) {
-            if (months > 0) text += " and ";
-            text += `${days} day${days > 1 ? "s" : ""}`;
-        }
-        if (months === 0 && days === 0) {
-            text = "Just started dating!";
-        }
+        if (months > 0) text += `${months} month${months > 1 ? "s" : ""}`;
+        if (days > 0) text += months > 0 ? ` and ${days} day${days > 1 ? "s" : ""}` : `${days} day${days > 1 ? "s" : ""}`;
+        if (months === 0 && days === 0) text = "Just started dating!";
         return text;
     };
 
     return (
         <>
+            <div className="heart-bg">
+                {[...Array(10)].map((_, i) => (
+                    <span
+                        key={i}
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            animationDelay: `${Math.random() * 5}s`,
+                            animationDuration: `${6 + Math.random() * 4}s`,
+                        }}
+                    ></span>
+                ))}
+            </div>
+
             {showHeart && (
                 <div className="heart-overlay">
                     <div className="heart"></div>
@@ -152,8 +157,7 @@ export default function Home() {
                         <button onClick={() => signOut(auth)} className="logout-btn">
                             Logout
                         </button>
-                        <h1>Welcome, {userName}</h1>
-                        <p>Keep track of your memories together ❤️</p>
+                        <h1>Welcome {userName}</h1>
                         <p style={{ fontStyle: "italic", marginTop: 4, opacity: 0.85 }}>
                             {getDatingDurationText()}
                         </p>
@@ -162,6 +166,9 @@ export default function Home() {
                     <div className="hero-controls">
                         <Link to="/add" className="add-date-button">
                             + Add a Date
+                        </Link>
+                        <Link to="/newtrip" className="add-date-button">
+                            🎲 Road Trip
                         </Link>
                     </div>
                 </header>
@@ -178,82 +185,156 @@ export default function Home() {
                             <option value="asc">Oldest to Newest</option>
                         </select>
                     </div>
+
                     {dates.length === 0 ? (
                         <p className="no-dates">No dates logged yet.</p>
                     ) : (
                         <div className="timeline">
-                            {dates.map((d) => {
-                                const creatorName = userNamesMap[d.userID] || "Unknown";
-                                const partnerName = d.partnerUserID
-                                    ? userNamesMap[d.partnerUserID] || "Partner"
-                                    : "Partner";
-                                const partnerComment = d.partnerComment || "";
-                                const canComment =
-                                    currentUserId !== d.userID && !partnerComment;
+                            {dates
+                                .sort((a, b) => {
+                                    const aDate = a.date
+                                        ? new Date(a.date)
+                                        : a.startDate?.toDate
+                                            ? a.startDate.toDate()
+                                            : new Date(a.startDate);
+                                    const bDate = b.date
+                                        ? new Date(b.date)
+                                        : b.startDate?.toDate
+                                            ? b.startDate.toDate()
+                                            : new Date(b.startDate);
+                                    return sortOrder === "asc" ? aDate - bDate : bDate - aDate;
+                                })
+                                .map((item) => {
+                                    if (item.type === "date") {
+                                        const creatorName = userNamesMap[item.userID] || "Unknown";
+                                        const partnerName = item.partnerUserID
+                                            ? userNamesMap[item.partnerUserID] || "Partner"
+                                            : "Partner";
+                                        const partnerComment = item.partnerComment || "";
+                                        const canComment = currentUserId !== item.userID && !partnerComment;
 
-                                return (
-                                    <div key={d.id} className="timeline-item">
-                                        <div className="timeline-marker">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 24 24"
-                                                fill="#ff4d6d"
-                                                width="20"
-                                                height="20"
-                                            >
-                                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
-             2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 
-             4.5 2.09C13.09 3.81 14.76 3 16.5 3 
-             19.58 3 22 5.42 22 8.5c0 3.78-3.4 
-             6.86-8.55 11.54L12 21.35z"/>
-                                            </svg>
-                                        </div>
-
-                                        <div className="timeline-content">
-                                            <span className="timeline-date">
-                                                {d.date}
-                                            </span>
-                                            <small className="creator-label">
-                                                Created by {creatorName}
-                                            </small>
-                                            <h3>{d.title}</h3>
-                                            <p>{d.description}</p>
-
-                                            {partnerComment && (
-                                                <p className="partner-comment">
-                                                    <strong>{partnerName}:</strong> {partnerComment}
-                                                </p>
-                                            )}
-
-                                            {canComment && (
-                                                <div className="comment-section">
-                                                    <label>
-                                                        Add your memory:
-                                                        <textarea
-                                                            rows={5}
-                                                            className="comment-input"
-                                                            placeholder="How do you remember this date..."
-                                                            value={commentInputs[d.id] ?? ""}
-                                                            onChange={(e) =>
-                                                                handleCommentChange(
-                                                                    d.id,
-                                                                    e.target.value
-                                                                )
-                                                            }
-                                                        />
-                                                    </label>
-                                                    <button
-                                                        className="comment-save-button"
-                                                        onClick={() => savePartnerComment(d)}
+                                        return (
+                                            <div key={item.id} className="timeline-item">
+                                                <div className="timeline-marker">
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="#ff4d6d"
+                                                        width="40"
+                                                        height="40"
                                                     >
-                                                        Save Memory
-                                                    </button>
+                                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
+2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 
+4.5 2.09C13.09 3.81 14.76 3 16.5 3 
+19.58 3 22 5.42 22 8.5c0 3.78-3.4 
+6.86-8.55 11.54L12 21.35z"/>
+                                                    </svg>
                                                 </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                                                <div className="timeline-content">
+                                                    <div className="date-info">
+                                                        <span className="timeline-date">
+                                                            {(() => {
+                                                                const [year, month, day] = item.date
+                                                                    .split("-")
+                                                                    .map(Number);
+                                                                const parsed = new Date(year, month - 1, day);
+                                                                return parsed.toLocaleDateString("en-US", {
+                                                                    month: "long",
+                                                                    day: "numeric",
+                                                                    year: "numeric",
+                                                                });
+                                                            })()}
+                                                        </span>
+                                                        <small
+                                                            className="creator-label"
+                                                            style={{
+                                                                color:
+                                                                    item.userID ===
+                                                                        "D0rh29intgVQATdHC8bQSWPeKFC2"
+                                                                        ? "#ff758c"
+                                                                        : "#4da6ff",
+                                                                fontWeight: "600",
+                                                            }}
+                                                        >
+                                                            Created by {creatorName}
+                                                        </small>
+                                                        <h3>{item.title}</h3>
+                                                        <p>{item.description}</p>
+                                                    </div>
+                                                    {partnerComment && (
+                                                        <p
+                                                            className="partner-comment"
+                                                            style={{
+                                                                borderLeftColor:
+                                                                    item.partnerUserID ===
+                                                                        "D0rh29intgVQATdHC8bQSWPeKFC2"
+                                                                        ? "#ff758c"
+                                                                        : "#4da6ff",
+                                                            }}
+                                                        >
+                                                            <strong>{partnerName}:</strong> {partnerComment}
+                                                        </p>
+                                                    )}
+                                                    {canComment && (
+                                                        <div className="comment-section">
+                                                            <label>
+                                                                Add your memory:
+                                                                <textarea
+                                                                    rows={5}
+                                                                    className="comment-input"
+                                                                    placeholder="How do you remember this date..."
+                                                                    value={commentInputs[item.id] ?? ""}
+                                                                    onChange={(e) =>
+                                                                        handleCommentChange(item.id, e.target.value)
+                                                                    }
+                                                                />
+                                                            </label>
+                                                            <button
+                                                                className="comment-save-button"
+                                                                onClick={() => savePartnerComment(item)}
+                                                            >
+                                                                Save Memory
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    } else if (item.type === "trip") {
+                                        return (
+                                            <div key={item.id} className="timeline-item">
+                                                <div className="timeline-marker">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#4da6ff" width="40" height="40">
+                                                        <path d="M5 16a1 1 0 100 2 1 1 0 000-2zm14 0a1 1 0 100 2 1 1 0 000-2zM3 11V9a2 2 0 012-2h14a2 2 0 012 2v2h1v7h-1a2 2 0 01-2 2h-1a2 2 0 01-2-2H9a2 2 0 01-2 2H6a2 2 0 01-2-2H3v-7h1zm2-2v2h14V9H5z" />
+                                                    </svg>
+                                                </div>
+                                                <div className="timeline-content">
+                                                    <span className="timeline-date">
+                                                        {(() => {
+                                                            const start = item.startDate?.toDate
+                                                                ? item.startDate.toDate()
+                                                                : new Date(item.startDate);
+                                                            const end = item.endDate?.toDate
+                                                                ? item.endDate.toDate()
+                                                                : item.endDate
+                                                                    ? new Date(item.endDate)
+                                                                    : null;
+                                                            return start.toLocaleDateString("en-US", {
+                                                                month: "long",
+                                                                day: "numeric",
+                                                                year: "numeric",
+                                                            }) + (end ? " – " + end.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "");
+                                                        })()}
+                                                    </span>
+                                                    <h3>{item.title}</h3>
+                                                    <p>From: {item.from} ↠ To: {item.to}</p>
+                                                    <p>License Plate Game: {item.games.licensePlate.count}/50</p>
+                                                    <p>ABC Game: {item.games.abcGame.rounds} round(s), {item.games.abcGame.currentLetter}</p>
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+                                })}
                         </div>
                     )}
                 </section>
