@@ -14,6 +14,7 @@ export default function RoadTripGames() {
     const [trip, setTrip] = useState(null);
     const [session, setSession] = useState(null);
     const [activeGame, setActiveGame] = useState("wouldYouRather"); // toggle view
+    const [showEndTripModal, setShowEndTripModal] = useState(false);
 
     // Fetch the trip
     const fetchTrip = async () => {
@@ -45,12 +46,13 @@ export default function RoadTripGames() {
         }
     }, [trip]);
 
-    const handleEndTrip = async () => {
+    const handleEndTripConfirmed = async () => {
+        setShowEndTripModal(false);
+        
         if (!session) return;
 
         const docRef = doc(db, "roadtrips", tripId);
 
-        // Explicitly construct the games map to save
         const gamesToSave = {
             abcGame: {
                 currentLetter: session.abcGame?.currentLetter || "",
@@ -85,7 +87,7 @@ export default function RoadTripGames() {
                     className={activeGame === "wouldYouRather" ? "active" : ""}
                     onClick={() => setActiveGame("wouldYouRather")}
                 >
-                    Would You Rather
+                    Couples Questions
                 </button>
                 <button
                     className={activeGame === "abcGame" ? "active" : ""}
@@ -113,10 +115,33 @@ export default function RoadTripGames() {
                 )}
             </section>
 
-            <button className="end-trip-btn" onClick={handleEndTrip}>
+            <button className="end-trip-btn" onClick={() => setShowEndTripModal(true)}>
                 End Road Trip
             </button>
+
+            {/* Modal Popup */}
+            {showEndTripModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>End Trip</h2>
+                        <p>When you end the trip you can no longer play or edit progress for any games.</p>
+                        <div className="modal-buttons">
+                            <button
+                                className="cancel-btn"
+                                onClick={() => setShowEndTripModal(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="confirm-btn"
+                                onClick={handleEndTripConfirmed}
+                            >
+                                End Trip
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
-
 }

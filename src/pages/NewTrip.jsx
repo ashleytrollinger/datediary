@@ -81,7 +81,6 @@ export default function NewTrip() {
        c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/> </svg>
             ))}
 
-            ```
             {showHeart && (
                 <div className="heart-overlay">
                     <div className="heart"></div>
