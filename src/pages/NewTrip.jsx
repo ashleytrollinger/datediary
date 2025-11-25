@@ -1,8 +1,9 @@
+// NewTrip.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import "./AddDate.css"; // reuse the AddDate style for hearts and layout
+import "./NewTrip.css";
 
 export default function NewTrip() {
     const [title, setTitle] = useState("");
@@ -21,12 +22,11 @@ export default function NewTrip() {
                 scale: 1 + Math.random() * 1.5,
                 duration: 5 + Math.random() * 5,
             };
-            setHearts((prev) => [...prev, newHeart]);
+            setHearts(prev => [...prev, newHeart]);
             setTimeout(() => {
-                setHearts((prev) => prev.filter((h) => h.id !== newHeart.id));
+                setHearts(prev => prev.filter(h => h.id !== newHeart.id));
             }, newHeart.duration * 1000);
         }, 600);
-
         return () => clearInterval(interval);
     }, []);
 
@@ -40,7 +40,6 @@ export default function NewTrip() {
                 startDate: serverTimestamp(),
                 games: {},
             });
-
             setShowHeart(true);
             setTimeout(() => {
                 navigate(`/games/${docRef.id}`);
@@ -51,7 +50,6 @@ export default function NewTrip() {
     };
 
     const handlePlayWithoutTrip = () => {
-        // temporary session; tripId "temp"
         navigate("/games/temp");
     };
 
@@ -72,9 +70,9 @@ export default function NewTrip() {
                     height="50"
                 >
                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
-                        2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09
-                        C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5
-                        c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09
+        C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5
+        c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                 </svg>
             ))}
 
@@ -84,51 +82,23 @@ export default function NewTrip() {
                 </div>
             )}
 
-            <div className="add-date">
-                <div className="add-date-container">
+            <div className="new-trip-page">
+                <div className="new-trip-form">
                     <h1>Start a New Road Trip</h1>
-                    <p className="info-blip">
-                        Track your trip and play fun games along the way!
-                    </p>
+                    <p className="info-blip">Track your trip and play fun games along the way!</p>
 
-                    <input
-                        placeholder="Trip Title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                    />
-                    <input
-                        placeholder="From"
-                        value={from}
-                        onChange={(e) => setFrom(e.target.value)}
-                    />
-                    <input
-                        placeholder="To"
-                        value={to}
-                        onChange={(e) => setTo(e.target.value)}
-                    />
+                    <input placeholder="Trip Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+                    <input placeholder="From" value={from} onChange={(e) => setFrom(e.target.value)} />
+                    <input placeholder="To" value={to} onChange={(e) => setTo(e.target.value)} />
 
                     <div className="button-row">
-                        <button
-                            onClick={() => navigate("/")}
-                            className="cancel-button"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleStartTrip}
-                            className="save-button"
-                        >
-                            Start Trip 🚗
-                        </button>
-                        <button
-                            onClick={handlePlayWithoutTrip}
-                            className="play-button"
-                        >
-                            Play Without Trip 🎲
-                        </button>
+                        <button onClick={handleStartTrip} className="primary-button">Start Trip 🚗</button>
+                        <button onClick={handlePlayWithoutTrip} className="secondary-button">Play Without Trip 🎲</button>
+                        <button onClick={() => navigate("/")} className="cancel-button">Cancel</button>
                     </div>
                 </div>
             </div>
         </>
     );
 }
+
