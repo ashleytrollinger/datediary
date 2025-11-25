@@ -48,7 +48,7 @@ export default function RoadTripGames() {
 
     const handleEndTripConfirmed = async () => {
         setShowEndTripModal(false);
-        
+
         if (!session) return;
 
         const docRef = doc(db, "roadtrips", tripId);
@@ -56,7 +56,7 @@ export default function RoadTripGames() {
         const gamesToSave = {
             abcGame: {
                 currentLetter: session.abcGame?.currentLetter || "",
-                rounds: session.abcGame?.rounds || ""
+                rounds: session.abcGame?.rounds || 0,
             },
             licensePlate: {
                 count: session.licensePlate?.count || 0,

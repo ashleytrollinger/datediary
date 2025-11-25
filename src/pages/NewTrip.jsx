@@ -22,17 +22,12 @@ export default function NewTrip() {
                 duration: 5 + Math.random() * 5,
             };
             setHearts((prev) => [...prev, newHeart]);
-
-
-            // Remove heart after animation
             setTimeout(() => {
                 setHearts((prev) => prev.filter((h) => h.id !== newHeart.id));
             }, newHeart.duration * 1000);
         }, 600);
 
         return () => clearInterval(interval);
-
-
     }, []);
 
     const handleStartTrip = async () => {
@@ -46,18 +41,18 @@ export default function NewTrip() {
                 games: {},
             });
 
-
-            // Show heart overlay
             setShowHeart(true);
-
             setTimeout(() => {
                 navigate(`/games/${docRef.id}`);
             }, 2000);
         } catch (err) {
             console.error("Failed to start trip", err);
         }
+    };
 
-
+    const handlePlayWithoutTrip = () => {
+        // temporary session; tripId "temp"
+        navigate("/games/temp");
     };
 
     return (
@@ -75,10 +70,12 @@ export default function NewTrip() {
                     fill="rgba(255,100,150,0.8)"
                     width="50"
                     height="50"
-                > <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
-       2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09
-       C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5
-       c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/> </svg>
+                >
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                        2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09
+                        C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5
+                        c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
             ))}
 
             {showHeart && (
@@ -109,6 +106,7 @@ export default function NewTrip() {
                         value={to}
                         onChange={(e) => setTo(e.target.value)}
                     />
+
                     <div className="button-row">
                         <button
                             onClick={() => navigate("/")}
@@ -122,11 +120,15 @@ export default function NewTrip() {
                         >
                             Start Trip 🚗
                         </button>
+                        <button
+                            onClick={handlePlayWithoutTrip}
+                            className="play-button"
+                        >
+                            Play Without Trip 🎲
+                        </button>
                     </div>
                 </div>
             </div>
         </>
-
-
     );
 }
