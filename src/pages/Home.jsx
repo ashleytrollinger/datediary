@@ -328,12 +328,13 @@ export default function Home() {
                                                     </span>
                                                     <h3>{item.title}</h3>
                                                     <p>From: {item.from} ↠ To: {item.to}</p>
-                                                    <p>License Plate Game: {item.games.licensePlate.count}/50</p>
-                                                    <p>ABC Game: {item.games.abcGame.rounds} round(s), {item.games.abcGame.currentLetter}</p>
+                                                    <p>License Plate Game: {item.games?.licensePlate?.count ?? 0}/50</p>
+                                                    <p>ABC Game: {item.games?.abcGame?.rounds ?? 0} round(s), {item.games?.abcGame?.currentLetter ?? ""}</p>
                                                 </div>
                                             </div>
                                         );
                                     }
+
                                 })}
                         </div>
                     )}
